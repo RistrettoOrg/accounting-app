@@ -1,0 +1,45 @@
+{
+  "kind": "collectionType",
+  "collectionName": "journal_entries",
+  "info": {
+    "singularName": "journal-entry",
+    "pluralName": "journal-entries",
+    "displayName": "JournalEntry",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "date": {
+      "type": "date",
+      "required": true
+    },
+    "description": {
+      "type": "text"
+    },
+    "number": {
+      "type": "integer",
+      "required": true
+    },
+    "entry_status": {
+      "type": "enumeration",
+      "enum": ["draft", "posted", "cancelled"],
+      "required": true,
+      "default": "posted"
+    },
+    "journal_lines": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::journal-line.journal-line",
+      "mappedBy": "journal_entry",
+      "pluginOptions": {
+        "content-manager": {
+          "create": {
+            "enabled": true
+          }
+        }
+      }
+    }
+  }
+}

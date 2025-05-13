@@ -1,0 +1,37 @@
+{
+  "kind": "collectionType",
+  "collectionName": "journal_lines",
+  "info": {
+    "singularName": "journal-line",
+    "pluralName": "journal-lines",
+    "displayName": "JournalLine",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "journal_entry": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::journal-entry.journal-entry",
+      "inversedBy": "journal_lines"
+    },
+    "account": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::account.account"
+    },
+    "description": {
+      "type": "text"
+    },
+    "amount": {
+      "type": "decimal",
+      "required": true
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": ["debit", "credit"]
+    }
+  }
+}
