@@ -56,7 +56,6 @@ export default function UpdateJournalEntryPage({
       setFormErrors({});
     }
 
-    console.log("documentId", journalEntryData.documentId);
     updateJournalEntry.mutate(
       {
         documentId: journalEntryData.documentId ?? "",

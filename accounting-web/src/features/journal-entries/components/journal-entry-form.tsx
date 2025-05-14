@@ -119,9 +119,6 @@ export function JournalEntryForm({
   // Eliminar una línea
   const eliminarLinea = (index: number) => {
     const nuevasLineas = journalLines.filter((_, i) => i !== index);
-    if (journalLines[index].documentId) {
-      deleteJournalEntry.mutate(journalLines[index].documentId || "");
-    }
     setJournalLines(nuevasLineas);
   };
 
