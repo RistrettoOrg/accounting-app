@@ -31,7 +31,10 @@
     },
     "type": {
       "type": "enumeration",
-      "enum": ["debit", "credit"]
+      "enum": [
+        "debit",
+        "credit"
+      ]
     }
   }
 }

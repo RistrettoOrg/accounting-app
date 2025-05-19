@@ -2,10 +2,13 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAccounts } from "@/features/accounts/hooks/use-accounts";
+import { useJournalEntries } from "@/features/journal-entries/hooks/use-journal-entries";
 import {
   CreditCard,
   DollarSign,
@@ -16,7 +19,118 @@ import {
   ArrowDownRight,
 } from "lucide-react";
 import { Link } from "react-router";
+
+import { TrendingUp } from "lucide-react";
+import { Label, Pie, PieChart } from "recharts";
+
+import {
+  type ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
+import { useMemo } from "react";
+import { useJournalLines } from "@/features/journal-lines/hooks/use-journal-lines";
+
+const chartData = [
+  { browser: "chrome", visitors: 275, fill: "var(--color-chrome)" },
+  { browser: "safari", visitors: 200, fill: "var(--color-safari)" },
+  { browser: "firefox", visitors: 287, fill: "var(--color-firefox)" },
+  { browser: "edge", visitors: 173, fill: "var(--color-edge)" },
+  { browser: "other", visitors: 190, fill: "var(--color-other)" },
+];
+
+// const chartConfig = {
+//   Resultadosnegativos: {
+//     label: "Resultado Positivo",
+//     color: "var(--chart-1)",
+//   },
+//   Gastosdehogar: {
+//     label: "Gastos Hogar",
+//     color: "var(--chart-2)",
+//   },
+// } satisfies ChartConfig;
+
 export default function Home() {
+  const totalVisitors = useMemo(() => {
+    return chartData.reduce((acc, curr) => acc + curr.visitors, 0);
+  }, []);
+  const { data: accounts } = useAccounts();
+  const totalAccounts = accounts?.length || 0;
+  const accountsInLastMonth = accounts?.filter(
+    (account) =>
+      new Date(account.createdAt || 0) >=
+      new Date(new Date().setMonth(new Date().getMonth() - 1))
+  ).length;
+  const { data: journalEntries } = useJournalEntries();
+
+  const totalJournalEntries = journalEntries?.length || 0;
+  const journalEntriesInLastMonth = journalEntries?.filter(
+    (entry) =>
+      new Date(entry.date) >=
+      new Date(new Date().setMonth(new Date().getMonth() - 1))
+  ).length;
+
+  const lastJournalEntries = journalEntries?.slice(0, 5) || [];
+  const { data: journalLines } = useJournalLines();
+  const expenseJournalLines = journalLines?.filter(
+    (journalLine) => journalLine?.account.type == "expense"
+  );
+  const expensesByAccount = expenseJournalLines?.reduce((acc, line) => {
+    const accountName = line.account.name;
+    const amount = line.amount || 0;
+    const existingAccount = acc.find((item) => item.account === accountName);
+    if (line.type === "credit") {
+      if (existingAccount) {
+        existingAccount.amount -= amount;
+      } else {
+        acc.push({
+          account: accountName.replace(/ /g, ""),
+          originalAccount: accountName,
+          amount: -amount,
+          fill: `var(--color-${accountName.replace(/ /g, "")})`,
+        });
+      }
+    } else {
+      if (existingAccount) {
+        existingAccount.amount += amount;
+      } else {
+        acc.push({
+          account: accountName.replace(/ /g, ""),
+          originalAccount: accountName,
+          amount,
+          fill: `var(--color-${accountName.replace(/ /g, "")})`,
+        });
+      }
+    }
+
+    return acc;
+  }, [] as { account: string; originalAccount: string; amount: number; fill: string }[]);
+  const totalExpenses = expensesByAccount?.reduce(
+    (acc, item) => acc + item.amount,
+    0
+  );
+  const chartColors = [
+    "var(--chart-1)",
+    "var(--chart-2)",
+    "var(--chart-3)",
+    "var(--chart-4)",
+    "var(--chart-5)",
+  ];
+  const chartConfig2 = (
+    expensesByAccount
+      ? expensesByAccount.reduce((acc, { account, originalAccount }, index) => {
+          // Elegimos el color según el índice, rotando cada 5
+          const color = chartColors[index % chartColors.length];
+          acc[account] = {
+            color,
+            label: originalAccount,
+          };
+          return acc;
+        }, {} as Record<string, { label: string; color: string }>)
+      : {}
+  ) satisfies ChartConfig;
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
@@ -41,13 +155,15 @@ export default function Home() {
                 <CreditCard className="h-4 w-4 text-violet-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">24</div>
+                <div className="text-2xl font-bold">{totalAccounts}</div>
                 <p className="text-xs text-muted-foreground">
-                  +2 desde el último mes
+                  {totalAccounts > 0
+                    ? `+${accountsInLastMonth} desde el último mes`
+                    : "Sin cuentas registradas"}
                 </p>
               </CardContent>
             </Card>
-            <Card>
+            {/* <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
                   Monedas Activas
@@ -58,7 +174,7 @@ export default function Home() {
                 <div className="text-2xl font-bold">3</div>
                 <p className="text-xs text-muted-foreground">USD, EUR, ARS</p>
               </CardContent>
-            </Card>
+            </Card> */}
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
@@ -67,11 +183,15 @@ export default function Home() {
                 <FileText className="h-4 w-4 text-orange-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">142</div>
-                <p className="text-xs text-muted-foreground">+22 este mes</p>
+                <div className="text-2xl font-bold">{totalJournalEntries}</div>
+                <p className="text-xs text-muted-foreground">
+                  {totalJournalEntries > 0
+                    ? `+${journalEntriesInLastMonth} desde el último mes`
+                    : "Sin asientos contables registrados"}
+                </p>
               </CardContent>
             </Card>
-            <Card>
+            {/* <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
                   Periodo Actual
@@ -84,20 +204,84 @@ export default function Home() {
                   Finaliza en 29 días
                 </p>
               </CardContent>
-            </Card>
+            </Card> */}
           </div>
 
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-            <Card className="col-span-4">
-              <CardHeader>
-                <CardTitle>Resumen Financiero</CardTitle>
-              </CardHeader>
-              <CardContent className="pl-2">
-                <div className="h-[200px] flex items-center justify-center text-muted-foreground">
-                  Gráfico de resumen financiero
-                </div>
-              </CardContent>
-            </Card>
+            <div className="justify-center text-muted-foreground col-span-4">
+              <Card className="flex flex-col">
+                <CardHeader className="items-center pb-0">
+                  <CardTitle>Gráfico de Gastos</CardTitle>
+                  <CardDescription>Gastos del último mes</CardDescription>
+                </CardHeader>
+                <CardContent className="flex-1 pb-0">
+                  {Object.keys(chartConfig2).length > 0 && (
+                    <>
+                      {/* {console.log("chartConfig", chartConfig)} */}
+                      {console.log("chartConfig2", chartConfig2)}
+                      <ChartContainer
+                        config={chartConfig2}
+                        className="mx-auto aspect-square max-h-[350px]"
+                      >
+                        <PieChart>
+                          <ChartTooltip
+                            cursor={false}
+                            content={<ChartTooltipContent indicator="line" />}
+                          />
+                          <Pie
+                            data={expensesByAccount}
+                            dataKey="amount"
+                            nameKey="account"
+                            innerRadius={100}
+                            strokeWidth={10}
+                          >
+                            <Label
+                              content={({ viewBox }) => {
+                                if (
+                                  viewBox &&
+                                  "cx" in viewBox &&
+                                  "cy" in viewBox
+                                ) {
+                                  return (
+                                    <text
+                                      x={viewBox.cx}
+                                      y={viewBox.cy}
+                                      textAnchor="middle"
+                                      dominantBaseline="middle"
+                                    >
+                                      <tspan
+                                        x={viewBox.cx}
+                                        y={viewBox.cy}
+                                        className="fill-foreground text-2xl font-bold"
+                                      >
+                                        {totalExpenses?.toLocaleString(
+                                          "es-ES",
+                                          {
+                                            style: "currency",
+                                            currency: "ARS",
+                                          }
+                                        )}
+                                      </tspan>
+                                      <tspan
+                                        x={viewBox.cx}
+                                        y={(viewBox.cy || 0) + 24}
+                                        className="fill-muted-foreground"
+                                      >
+                                        Gastos
+                                      </tspan>
+                                    </text>
+                                  );
+                                }
+                              }}
+                            />
+                          </Pie>
+                        </PieChart>
+                      </ChartContainer>
+                    </>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
             <Card className="col-span-3">
               <CardHeader>
                 <CardTitle>Actividad Reciente</CardTitle>
@@ -105,42 +289,29 @@ export default function Home() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="flex items-center">
-                    <ArrowUpRight className="mr-2 h-4 w-4 text-green-500" />
-                    <div className="ml-2 space-y-1">
-                      <p className="text-sm font-medium leading-none">
-                        Pago de factura #1234
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        02/05/2025
-                      </p>
+                  {lastJournalEntries.map((entry) => (
+                    <div key={entry.documentId} className="flex items-center">
+                      <FileText className="mr-2 h-4 w-4 text-orange-500" />
+                      <div className="ml-2 space-y-1">
+                        <p className="text-sm font-medium leading-none">
+                          {entry.description}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {new Date(entry.date).toLocaleDateString("es-ES", {
+                            year: "numeric",
+                            month: "2-digit",
+                            day: "2-digit",
+                          })}
+                        </p>
+                      </div>
+                      <div className="ml-auto font-medium">
+                        {entry.amount?.toLocaleString("es-ES", {
+                          style: "currency",
+                          currency: "ARS",
+                        })}
+                      </div>
                     </div>
-                    <div className="ml-auto font-medium">+$1,999.00</div>
-                  </div>
-                  <div className="flex items-center">
-                    <ArrowDownRight className="mr-2 h-4 w-4 text-red-500" />
-                    <div className="ml-2 space-y-1">
-                      <p className="text-sm font-medium leading-none">
-                        Compra de suministros
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        01/05/2025
-                      </p>
-                    </div>
-                    <div className="ml-auto font-medium">-$320.50</div>
-                  </div>
-                  <div className="flex items-center">
-                    <ArrowUpRight className="mr-2 h-4 w-4 text-green-500" />
-                    <div className="ml-2 space-y-1">
-                      <p className="text-sm font-medium leading-none">
-                        Pago de cliente #456
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        30/04/2025
-                      </p>
-                    </div>
-                    <div className="ml-auto font-medium">+$2,500.00</div>
-                  </div>
+                  ))}
                 </div>
               </CardContent>
             </Card>
@@ -206,8 +377,8 @@ export default function Home() {
         </TabsContent>
       </Tabs>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Link to="/cuentas">
+      {/* <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Link to="/accounts">
           <Card className="hover:bg-gray-50 transition-colors dark:hover:bg-gray-800">
             <CardHeader className="flex flex-row items-center justify-between space-y-0">
               <CardTitle className="text-lg font-medium">Cuentas</CardTitle>
@@ -261,7 +432,7 @@ export default function Home() {
             </CardContent>
           </Card>
         </Link>
-      </div>
+      </div> */}
     </div>
   );
 }

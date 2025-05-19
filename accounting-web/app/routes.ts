@@ -22,12 +22,20 @@ export default [
         route("new", "pages/home/accounts/new.tsx"),
         route(":documentId", "pages/home/accounts/update.tsx"),
       ]),
-      route("currencies", "pages/home/currencies.tsx"),
+
       ...prefix("journal-entries", [
         index("pages/home/journal-entries/index.tsx"),
         route("new", "pages/home/journal-entries/new.tsx"),
         route(":documentId", "pages/home/journal-entries/update.tsx"),
       ]),
+
+      ...prefix("periods", [
+        index("pages/home/periods/index.tsx"),
+        route("new", "pages/home/periods/new.tsx"),
+        route(":documentId", "pages/home/periods/update.tsx"),
+      ]),
+      route("balances", "pages/home/balances/index.tsx"),
+      route("currencies", "pages/home/currencies.tsx"),
     ]),
   ]),
 ] satisfies RouteConfig;

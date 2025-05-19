@@ -12,6 +12,16 @@ const getHeaders = () => {
   };
 };
 
+export const fetchJournalLines = async (): Promise<JournalLine[]> => {
+  const res = await fetch(`${API}?populate=*`, {
+    headers: getHeaders(),
+  });
+  if (!res.ok) throw new Error("Error al obtener líneas de asientos contables");
+  const json = await res.json();
+
+  return json.data;
+};
+
 export const createJournalLine = async (
   line: JournalLine,
   journalEntryId: string

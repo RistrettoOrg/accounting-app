@@ -26,14 +26,10 @@
         "closed"
       ]
     },
-    "uuid": {
-      "type": "uid",
-      "required": true
-    },
-    "user": {
-      "type": "relation",
-      "relation": "oneToOne",
-      "target": "plugin::users-permissions.user"
+    "name": {
+      "type": "string",
+      "required": true,
+      "unique": true
     }
   }
 }

@@ -3,4 +3,5 @@ export type Account = {
   name: string;
   type: string;
   code: string;
+  createdAt?: string;
 };

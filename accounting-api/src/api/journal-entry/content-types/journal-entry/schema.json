@@ -24,7 +24,11 @@
     },
     "entry_status": {
       "type": "enumeration",
-      "enum": ["draft", "posted", "cancelled"],
+      "enum": [
+        "draft",
+        "posted",
+        "cancelled"
+      ],
       "required": true,
       "default": "posted"
     },
@@ -40,6 +44,11 @@
           }
         }
       }
+    },
+    "period": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::period.period"
     }
   }
 }

@@ -1,8 +1,9 @@
 "use client";
 
-import { cn, ROUTES } from "@/shared/lib/utils";
+import { ROUTES } from "@/shared/lib/utils";
 import {
   BarChart3,
+  CalendarRange,
   CreditCard,
   DollarSign,
   FileText,
@@ -20,6 +21,7 @@ import {
 import { NavLink, useLocation, useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
 import { useUserSession } from "@/shared/hooks/use-session";
+import { cn } from "@/lib/utils";
 
 const routes = [
   {
@@ -40,10 +42,22 @@ const routes = [
     href: ROUTES.ACCOUNTS,
     color: "text-violet-500",
   },
+  // {
+  //   label: "Monedas",
+  //   icon: DollarSign,
+  //   href: ROUTES.CURRENCIES,
+  //   color: "text-pink-700",
+  // },
   {
-    label: "Monedas",
-    icon: DollarSign,
-    href: ROUTES.CURRENCIES,
+    label: "Periodos",
+    icon: CalendarRange,
+    href: ROUTES.PERIODS,
+    color: "text-emerald-500",
+  },
+  {
+    label: "Balances",
+    icon: FileText,
+    href: ROUTES.BALANCES,
     color: "text-pink-700",
   },
 ];

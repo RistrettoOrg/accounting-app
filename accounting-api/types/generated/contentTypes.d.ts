@@ -487,6 +487,7 @@ export interface ApiJournalEntryJournalEntry
     > &
       Schema.Attribute.Private;
     number: Schema.Attribute.Integer & Schema.Attribute.Required;
+    period: Schema.Attribute.Relation<'oneToOne', 'api::period.period'>;
     publishedAt: Schema.Attribute.DateTime;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -552,17 +553,15 @@ export interface ApiPeriodPeriod extends Struct.CollectionTypeSchema {
       'api::period.period'
     > &
       Schema.Attribute.Private;
+    name: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.Unique;
     publishedAt: Schema.Attribute.DateTime;
     start_date: Schema.Attribute.Date & Schema.Attribute.Required;
     status_period: Schema.Attribute.Enumeration<['open', 'closed']>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    user: Schema.Attribute.Relation<
-      'oneToOne',
-      'plugin::users-permissions.user'
-    >;
-    uuid: Schema.Attribute.UID & Schema.Attribute.Required;
   };
 }
 
