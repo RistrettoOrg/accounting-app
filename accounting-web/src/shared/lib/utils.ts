@@ -5,4 +5,5 @@ export const ROUTES = {
   CURRENCIES: "/home/currencies",
   BALANCES: "/home/balances",
   PERIODS: "/home/periods",
+  SETTINGS: "/home/settings",
 };

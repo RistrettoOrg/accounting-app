@@ -7,6 +7,7 @@ import {
   CreditCard,
   DollarSign,
   FileText,
+  LogOut,
   Settings,
 } from "lucide-react";
 import {
@@ -98,12 +99,21 @@ export function Sidebar() {
       <Button
         variant="outline"
         className="flex items-center gap-2 mb-4 mx-4"
+        onClick={() => navigate(ROUTES.SETTINGS)}
+      >
+        <Settings className="h-4 w-4" />
+        <span className="ml-2">Configuración</span>
+      </Button>
+      <Button
+        variant="outline"
+        className="flex items-center gap-2 mb-4 mx-4"
         onClick={() => {
           logout();
           navigate("/");
         }}
       >
-        <Settings className="h-4 w-4" />
+        {/* <Settings className="h-4 w-4" /> */}
+        <LogOut />
         <span className="ml-2">Cerrar sesión</span>
       </Button>
     </ShadcnSidebar>

@@ -20,19 +20,30 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { Building2, Users, Percent, Database, DollarSign } from "lucide-react";
 import {
-  Building2,
-  Users,
-  Percent,
-  Bell,
-  Palette,
-  Database,
-  Link2,
-  Shield,
-  DollarSign,
-} from "lucide-react";
+  useOpenedPeriods,
+  usePeriods,
+} from "@/features/periods/hooks/use-periods";
+import { useUserSession } from "@/shared/hooks/use-session";
+import { useState } from "react";
+import type { Period } from "@/features/periods/types/period";
+import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export default function ConfiguracionPage() {
+export default function SettingsPage() {
+  const { data: periods } = useOpenedPeriods();
+  const { period: periodSelected, setPeriod, isHydrated } = useUserSession();
+  console.log("periodSelected", periodSelected);
+  console.log("isHydrated", isHydrated);
+  const [newPeriod, setNewPeriod] = useState<Period | null>(null);
+
+  const handleSave = () => {
+    if (newPeriod) {
+      setPeriod(newPeriod);
+    }
+    toast.success("Periodo contable actualizado");
+  };
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
@@ -42,191 +53,64 @@ export default function ConfiguracionPage() {
         </p>
       </div>
 
-      <Tabs defaultValue="empresa" className="space-y-4">
-        <TabsList className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 h-auto">
+      <Tabs defaultValue="general" className="space-y-4">
+        {/* <TabsList className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 h-auto">
           <TabsTrigger
-            value="empresa"
+            value="general"
             className="flex flex-col gap-1 h-auto py-2"
           >
-            <Building2 className="h-4 w-4" />
-            <span>Empresa</span>
+            <Settings className="h-4 w-4" />
+            <span>General</span>
           </TabsTrigger>
-          <TabsTrigger
-            value="usuarios"
-            className="flex flex-col gap-1 h-auto py-2"
-          >
-            <Users className="h-4 w-4" />
-            <span>Usuarios</span>
-          </TabsTrigger>
-          <TabsTrigger
-            value="impuestos"
-            className="flex flex-col gap-1 h-auto py-2"
-          >
-            <Percent className="h-4 w-4" />
-            <span>Impuestos</span>
-          </TabsTrigger>
-          <TabsTrigger
-            value="notificaciones"
-            className="flex flex-col gap-1 h-auto py-2"
-          >
-            <Bell className="h-4 w-4" />
-            <span>Notificaciones</span>
-          </TabsTrigger>
-          <TabsTrigger
-            value="apariencia"
-            className="flex flex-col gap-1 h-auto py-2"
-          >
-            <Palette className="h-4 w-4" />
-            <span>Apariencia</span>
-          </TabsTrigger>
-          <TabsTrigger
-            value="respaldo"
-            className="flex flex-col gap-1 h-auto py-2"
-          >
-            <Database className="h-4 w-4" />
-            <span>Respaldo</span>
-          </TabsTrigger>
-          <TabsTrigger
-            value="integraciones"
-            className="flex flex-col gap-1 h-auto py-2"
-          >
-            <Link2 className="h-4 w-4" />
-            <span>Integraciones</span>
-          </TabsTrigger>
-          <TabsTrigger
-            value="seguridad"
-            className="flex flex-col gap-1 h-auto py-2"
-          >
-            <Shield className="h-4 w-4" />
-            <span>Seguridad</span>
-          </TabsTrigger>
-        </TabsList>
+        </TabsList> */}
 
         {/* Configuración de Empresa */}
-        <TabsContent value="empresa">
+        <TabsContent value="general">
           <Card>
             <CardHeader>
-              <CardTitle>Información de la Empresa</CardTitle>
+              <CardTitle>Configuracion general de la aplicación</CardTitle>
               <CardDescription>
-                Configura la información básica de tu empresa para documentos y
-                reportes
+                Configura la información básica de la aplicación para su
+                correcto funcionamiento
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="nombre-empresa">Nombre de la Empresa</Label>
-                  <Input id="nombre-empresa" defaultValue="Mi Empresa S.A." />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="identificacion-fiscal">
-                    Identificación Fiscal
-                  </Label>
-                  <Input id="identificacion-fiscal" defaultValue="A12345678" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="telefono">Teléfono</Label>
-                  <Input id="telefono" defaultValue="+1 (555) 123-4567" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    defaultValue="contacto@miempresa.com"
-                  />
-                </div>
-                <div className="space-y-2 md:col-span-2">
-                  <Label htmlFor="direccion">Dirección</Label>
-                  <Input
-                    id="direccion"
-                    defaultValue="Calle Principal 123, Ciudad"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="ciudad">Ciudad</Label>
-                  <Input id="ciudad" defaultValue="Ciudad Principal" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="pais">País</Label>
-                  <Select defaultValue="argentina">
-                    <SelectTrigger id="pais">
-                      <SelectValue placeholder="Selecciona un país" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="argentina">Argentina</SelectItem>
-                      <SelectItem value="chile">Chile</SelectItem>
-                      <SelectItem value="colombia">Colombia</SelectItem>
-                      <SelectItem value="mexico">México</SelectItem>
-                      <SelectItem value="peru">Perú</SelectItem>
-                      <SelectItem value="espana">España</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <Separator />
-
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium">Configuración Fiscal</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="moneda-principal">Moneda Principal</Label>
-                    <Select defaultValue="usd">
-                      <SelectTrigger id="moneda-principal">
-                        <SelectValue placeholder="Selecciona una moneda" />
+                  <Label htmlFor="period">Periodo contable</Label>
+                  {isHydrated ? (
+                    <Select
+                      onValueChange={(value) => {
+                        const selectedPeriod = periods?.find(
+                          (period) => period.documentId === value
+                        );
+                        setNewPeriod(selectedPeriod || null);
+                      }}
+                      defaultValue={periodSelected?.documentId}
+                    >
+                      <SelectTrigger id="period">
+                        <SelectValue placeholder="Selecciona un periodo contable" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="usd">
-                          USD - Dólar Estadounidense
-                        </SelectItem>
-                        <SelectItem value="eur">EUR - Euro</SelectItem>
-                        <SelectItem value="ars">
-                          ARS - Peso Argentino
-                        </SelectItem>
+                        {periods?.map((period) => (
+                          <SelectItem
+                            key={period.documentId}
+                            value={period.documentId || ""}
+                          >
+                            {period.name} - {period.start_date} a{" "}
+                            {period.end_date}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="ano-fiscal">Año Fiscal</Label>
-                    <Select defaultValue="enero-diciembre">
-                      <SelectTrigger id="ano-fiscal">
-                        <SelectValue placeholder="Selecciona el período" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="enero-diciembre">
-                          Enero - Diciembre
-                        </SelectItem>
-                        <SelectItem value="abril-marzo">
-                          Abril - Marzo
-                        </SelectItem>
-                        <SelectItem value="julio-junio">
-                          Julio - Junio
-                        </SelectItem>
-                        <SelectItem value="octubre-septiembre">
-                          Octubre - Septiembre
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </div>
-
-              <Separator />
-
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium">Logo de la Empresa</h3>
-                <div className="flex items-center gap-4">
-                  <div className="h-24 w-24 rounded-md border flex items-center justify-center bg-muted">
-                    Logo
-                  </div>
-                  <Button variant="outline">Cambiar Logo</Button>
+                  ) : (
+                    <Skeleton className="h-10 w-full" />
+                  )}
                 </div>
               </div>
             </CardContent>
             <CardFooter className="flex justify-end gap-2">
-              <Button variant="outline">Cancelar</Button>
-              <Button>Guardar Cambios</Button>
+              <Button onClick={handleSave}>Guardar Cambios</Button>
             </CardFooter>
           </Card>
         </TabsContent>

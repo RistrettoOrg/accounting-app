@@ -85,8 +85,8 @@ export default function UpdateJournalEntryPage({
           </Button>
         </NavLink>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Editar Cuenta</h1>
-          <p className="text-muted-foreground">Editar la cuenta contable</p>
+          <h1 className="text-3xl font-bold tracking-tight">Editar asiento </h1>
+          <p className="text-muted-foreground">Editar el asiento contable</p>
         </div>
       </div>
 

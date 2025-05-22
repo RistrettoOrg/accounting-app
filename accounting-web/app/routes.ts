@@ -36,6 +36,7 @@ export default [
       ]),
       route("balances", "pages/home/balances/index.tsx"),
       route("currencies", "pages/home/currencies.tsx"),
+      route("settings", "pages/home/settings.tsx"),
     ]),
   ]),
 ] satisfies RouteConfig;
