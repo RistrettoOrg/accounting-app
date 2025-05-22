@@ -21,7 +21,7 @@ export const DELETE_PERIOD_MESSAGES = {
 
 export const PERIODS_ROUTES = {
   NEW: "/home/periods/new",
-  EDIT: "/home/periods/edit",
+  EDIT: "/home/periods",
 };
 
 export const periodSchema = z.object({
@@ -35,12 +35,19 @@ export const periodSchema = z.object({
 
 export type PeriodFormData = z.infer<typeof periodSchema>;
 
-export const extractPeriodData = (formData: FormData): Period => ({
-  name: formData.get("name")?.toString() || "",
-  start_date: formData.get("start_date") as string,
-  end_date: formData.get("end_date") as string,
-  status_period: formData.get("status")?.toString() as PeriodStatus,
-});
+export const extractPeriodData = (formData: FormData): Period => {
+  const periodData: Period = {
+    name: formData.get("name")?.toString() || "",
+    start_date: formData.get("start_date") as string,
+    end_date: formData.get("end_date") as string,
+    status_period: formData.get("status")?.toString() as PeriodStatus,
+  };
+  if (formData.get("documentId")) {
+    periodData.documentId = formData.get("documentId") as string;
+  }
+
+  return periodData;
+};
 
 export const validatePeriodData = (data: Period) => {
   return periodSchema.safeParse(data);

@@ -32,6 +32,7 @@ export function PeriodForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      <input hidden name="documentId" value={period?.documentId} />
       <Card>
         <CardHeader>
           <CardTitle>Información del Periodo contable</CardTitle>

@@ -21,9 +21,7 @@ export const fetchPeriods = async (): Promise<Period[]> => {
   if (!res.ok) throw new Error("Error al obtener los periodos contables");
   const json = await res.json();
 
-  const camelData = convertKeysToCamelCase(json.data);
-
-  return camelData;
+  return json.data;
 };
 
 export const fetchPeriodById = async (documentId: string): Promise<Period> => {
@@ -58,10 +56,12 @@ export const updatePeriod = async ({
   documentId: string;
   period: Period;
 }) => {
+  const { documentId: id, ...periodData } = period;
+
   const resEntry = await fetch(`${API}/${documentId}`, {
     method: "PUT",
     headers: getHeaders(),
-    body: JSON.stringify({ data: period }),
+    body: JSON.stringify({ data: periodData }),
   });
 
   if (!resEntry.ok) throw new Error("Error al actualizar el periodo contable");

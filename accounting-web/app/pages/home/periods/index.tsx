@@ -14,18 +14,55 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { usePeriods } from "@/features/periods/hooks/use-periods";
-import { PERIODS_ROUTES } from "@/features/periods/lib/utils";
-import { Plus, Lock, Unlock, Calendar, CheckCircle2 } from "lucide-react";
+import {
+  useDeletePeriod,
+  usePeriods,
+} from "@/features/periods/hooks/use-periods";
+import {
+  DELETE_PERIOD_MESSAGES,
+  PERIODS_ROUTES,
+} from "@/features/periods/lib/utils";
+import { useUserSession } from "@/shared/hooks/use-session";
+import { ROUTES } from "@/shared/lib/utils";
+import {
+  Plus,
+  Lock,
+  Unlock,
+  Calendar,
+  CheckCircle2,
+  Edit,
+  Trash2,
+} from "lucide-react";
 import { useNavigate } from "react-router";
+import { toast } from "sonner";
 
 export default function PeriodosPage() {
   const { data: periods } = usePeriods();
+  const { period: periodSelected } = useUserSession();
   const navigate = useNavigate();
-
+  const deletePeriod = useDeletePeriod();
   const handleClickAddPeriod = () => {
     navigate(PERIODS_ROUTES.NEW);
   };
+
+  const handleDelete = (periodId: string) => {
+    deletePeriod.mutate(periodId, {
+      onSuccess: () => {
+        toast.success(DELETE_PERIOD_MESSAGES.SUCCESS);
+      },
+      onError: (error) => {
+        toast.error(DELETE_PERIOD_MESSAGES.ERROR);
+      },
+    });
+  };
+
+  const handleClickEditPeriod = (periodId: string) => {
+    navigate(`${PERIODS_ROUTES.EDIT}/${periodId}`);
+  };
+  const statusPeriod = periodSelected?.status_period ?? "";
+  const periodSelectedStatus = `${
+    statusPeriod.charAt(0).toUpperCase() + statusPeriod.slice(1)
+  } `;
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
@@ -46,9 +83,10 @@ export default function PeriodosPage() {
             <Calendar className="h-4 w-4 text-emerald-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">Mayo 2025</div>
+            <div className="text-2xl font-bold">{periodSelected?.name}</div>
             <p className="text-xs text-muted-foreground">
-              Activo - Finaliza en 29 días
+              {periodSelectedStatus} {periodSelected?.start_date} -{" "}
+              {periodSelected?.end_date}
             </p>
           </CardContent>
         </Card>
@@ -114,36 +152,57 @@ export default function PeriodosPage() {
                 <TableHead>Nombre</TableHead>
                 <TableHead>Fecha Inicio</TableHead>
                 <TableHead>Fecha Fin</TableHead>
-                <TableHead>Asientos</TableHead>
                 <TableHead>Estado</TableHead>
                 <TableHead className="text-right">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {periods?.map((period) => (
-                <TableRow key={period.documentId}>
+                <TableRow
+                  key={period.documentId}
+                  onDoubleClick={() =>
+                    handleClickEditPeriod(period.documentId || "")
+                  }
+                >
                   <TableCell className="font-medium">{period.name}</TableCell>
-                  <TableCell>{period.startDate}</TableCell>
-                  <TableCell>{period.endDate}</TableCell>
-                  <TableCell>2000</TableCell>
+                  <TableCell>{period.start_date}</TableCell>
+                  <TableCell>{period.end_date}</TableCell>
+
                   <TableCell>
                     <span
                       className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
-                        period.statusPeriod === "open"
+                        period.status_period === "open"
                           ? "bg-green-50 text-green-700 border-green-200"
                           : "bg-red-50 text-red-700 border-red-200"
                       }`}
                     >
-                      {period.statusPeriod.charAt(0).toUpperCase() +
-                        period.statusPeriod.slice(1)}
+                      {period.status_period.charAt(0).toUpperCase() +
+                        period.status_period.slice(1)}
                     </span>
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
-                      <Button variant="outline" size="sm" className="h-8">
-                        {period.statusPeriod === "closed"
-                          ? "Reabrir"
-                          : "Cerrar"}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() =>
+                          handleClickEditPeriod(period.documentId || "")
+                        }
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => {
+                          if (period.documentId) {
+                            handleDelete(period.documentId);
+                          } else {
+                            toast.error("El ID del documento no está definido");
+                          }
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
                   </TableCell>

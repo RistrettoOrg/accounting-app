@@ -14,6 +14,13 @@ export const usePeriods = () =>
     queryFn: fetchPeriods,
   });
 
+export const useOpenedPeriods = () =>
+  useQuery({
+    queryKey: ["opened-periods"],
+    queryFn: fetchPeriods,
+    select: (data) => data.filter((period) => period.status_period === "open"),
+  });
+
 export const usePeriodById = (documentId: string) =>
   useQuery({
     queryKey: ["period", documentId],
